@@ -98,6 +98,13 @@ VideoFrameInfo& NodeVideoFrameTransporter::getVideoFrameInfo(NodeRenderType type
         return *m_localVideoFrame.get();
     }
     else if (type == NODE_RENDER_TYPE_REMOTE) {
+        auto hit = m_remoteHighVideoFrames.find(uid);
+
+        //try looking in high streams first
+        if (hit != m_remoteHighVideoFrames.end()) 
+            return m_remoteHighVideoFrames[uid];
+
+        //if not exists, try looking in low streams
         auto it = m_remoteVideoFrames.find(uid);
         if (it == m_remoteVideoFrames.end()) {
             m_remoteVideoFrames[uid] = VideoFrameInfo(NODE_RENDER_TYPE_REMOTE, uid);
@@ -175,7 +182,7 @@ int NodeVideoFrameTransporter::deliverFrame_I420(NodeRenderType type, agora::rtc
     rotation = rotation < 0 ? rotation + 360 : rotation;
     std::lock_guard<std::mutex> lck(m_lock);
     VideoFrameInfo& info = getVideoFrameInfo(type, uid);
-    int destWidth = info.m_destWidth ? info.m_destWidth : videoFrame.width();
+    int destWidth = info.m_destWidth ? info.m_destWidth : stride;
     int destHeight = info.m_destHeight ? info.m_destHeight : videoFrame.height();
     size_t imageSize = sizeof(image_header_type) + destWidth * destHeight * 3 / 2;
     auto s = info.m_buffer.size();

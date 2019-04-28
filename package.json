@@ -1,28 +1,29 @@
 {
   "name": "agora-electron-sdk",
-  "version": "2.3.3-rc",
+  "version": "2.3.3",
   "description": "agora-electron-sdk",
   "main": "js/AgoraSdk.js",
   "types": "types/AgoraSdk.d.ts",
   "author": "agora.io",
   "scripts": {
     "install": "npm run download",
+    "tslint": "tslint -c tslint.json -p tsconfig.json --fix",
     "build:dts": "rimraf ./types && tsc -p dtsconfig.json",
     "prebuild:ts": "npm run build:dts",
     "build:ts": "rimraf ./js && tsc -p tsconfig.json",
-    "postbuild:ts": "npm run doc:js",
     "build:node": "node ./scripts/build.js --runtime=node",
     "build:electron2": "node ./scripts/build.js --runtime=electron --electron_version=1.8.3",
     "build:electron3": "node ./scripts/build.js --runtime=electron --electron_version=3.0.6",
     "build:electron4": "node ./scripts/build.js --runtime=electron --electron_version=4.0.0",
     "debug": "node ./scripts/build.js --runtime=electron --electron_version=3.0.6 --debug=true",
-    "doc:js": "node ./scripts/jsapi.js",
+    "doc": "typedoc --out ./docs ./ts --hideGenerator --mode file --target es6 --name Agora-Electron-SDK --readme none",
     "download": "node ./scripts/download.js",
-    "preexample": "npm run build:electron3",
+    "preexample": "npm run build:electron3 && npm run build:ts",
     "example": "cd example && npm install && npm run dev",
-    "tslint": "tslint -c tslint.json -p tsconfig.json --fix",
-    "test": "npm run build:node && jest --detectOpenHandles --forceExit",
-    "quicktest": "jest --detectOpenHandles --forceExit"
+    "pretest": "npm run build:node && npm run build:ts",
+    "test": "jest --detectOpenHandles --forceExit",
+    "quicktest": "jest --detectOpenHandles --forceExit",
+    "prepublish": "npm run build:ts"
   },
   "gypfile": false,
   "dependencies": {
@@ -39,13 +40,14 @@
   },
   "devDependencies": {
     "@types/node": "^10.12.18",
-    "ts-node": "^8.0.2",
-    "typescript": "^3.3.3",
     "jest": "^23.1.0",
     "jsdoc-to-markdown": "^4.0.1",
     "prettier": "^1.13.4",
     "ts-jest": "^23.10.5",
-    "tslint": "^5.12.1"
+    "ts-node": "^8.0.2",
+    "tslint": "^5.12.1",
+    "typedoc": "^0.14.2",
+    "typescript": "^3.3.3"
   },
   "peerDependencies": {},
   "directories": {

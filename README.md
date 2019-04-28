@@ -27,13 +27,13 @@ AGORA_ELECTRON_DEPENDENT=2.0.0
 # range(>=3.0.0) will download a prebuilt addon built with electron 3.0.6
 AGORA_ELECTRON_DEPENDENT=3.0.6
 # or
-# range(>= 4.0.0) will download a prebuilt addon built with electron 4.0.0
+# range(= 4.0.0) will download a prebuilt addon built with electron 4.0.0
 AGORA_ELECTRON_DEPENDENT=4.0.0
 ```
 
 ## Resources
 
-- [API Reference](./docs/apis.md) - API Reference for JavaScript
+- [API Reference](https://agoraio.github.io/Electron-SDK/2_3_3/) - API Reference
 
 - [e-Education Application](https://github.com/AgoraIO/ARD-eEducation-with-Electron) - A complete e-education Application based on this repo
 

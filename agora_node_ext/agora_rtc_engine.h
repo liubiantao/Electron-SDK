@@ -253,6 +253,12 @@ namespace agora {
             NAPI_API(addToHighVideo);
             NAPI_API(removeFromHighVideo);
 
+            /**
+             * 2.3.3 apis
+             */
+            NAPI_API(getConnectionState);
+            NAPI_API(release);
+
         public:
             Isolate* getIsolate() { return m_isolate; }
             IRtcEngine* getRtcEngine() { return m_engine; }

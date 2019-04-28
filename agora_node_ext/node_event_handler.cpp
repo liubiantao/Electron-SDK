@@ -119,6 +119,15 @@ namespace agora {
         obj->Set(isolate->GetCurrentContext(), propName, propVal); \
     }
 
+#define NODE_SET_OBJ_PROP_UID(obj, name, val) \
+    { \
+        Local<Value> propName = String::NewFromUtf8(isolate, name, NewStringType::kInternalized).ToLocalChecked(); \
+        CHECK_NAPI_OBJ(propName); \
+        Local<Value> propVal = NodeUid::getNodeValue(isolate, val); \
+        CHECK_NAPI_OBJ(propVal); \
+        obj->Set(isolate->GetCurrentContext(), propName, propVal); \
+    }
+
 #define NODE_SET_OBJ_PROP_NUMBER(obj, name, val) \
     { \
         Local<Value> propName = String::NewFromUtf8(isolate, name, NewStringType::kInternalized).ToLocalChecked(); \
@@ -204,21 +213,44 @@ namespace agora {
             });
         }
 
-        void NodeEventHandler::onAudioVolumeIndication_node(const AudioVolumeInfo& speaker, unsigned int speakerNumber, int totalVolume)
+        void NodeEventHandler::onAudioVolumeIndication_node(AudioVolumeInfo* speakers, unsigned int speakerNumber, int totalVolume)
         {
             FUNC_TRACE;
-            MAKE_JS_CALL_4(RTC_EVENT_AUDIO_VOLUME_INDICATION, uid, speaker.uid, uint32, speaker.volume, uint32, speakerNumber, int32, totalVolume);
+            auto it = m_callbacks.find(RTC_EVENT_AUDIO_VOLUME_INDICATION);
+            if (it != m_callbacks.end()) {
+                Isolate *isolate = Isolate::GetCurrent();
+                HandleScope scope(isolate);
+                Local<v8::Array> arrSpeakers = v8::Array::New(isolate, speakerNumber);
+                for(int i = 0; i < speakerNumber; i++) {
+                    Local<Object> obj = Object::New(isolate);
+                    obj->Set(napi_create_string_(isolate, "uid"), napi_create_uid_(isolate, speakers[i].uid));
+                    obj->Set(napi_create_string_(isolate, "volume"), napi_create_uint32_(isolate, speakers[i].volume));
+                    arrSpeakers->Set(i, obj);
+                }
+
+                Local<Value> argv[3]{ arrSpeakers,
+                                    napi_create_uint32_(isolate, speakerNumber),
+                                    napi_create_uint32_(isolate, totalVolume)
+                                    };
+                NodeEventCallback& cb = *it->second;
+                cb.callback.Get(isolate)->Call(cb.js_this.Get(isolate), 3, argv);
+            }
+            // MAKE_JS_CALL_4(RTC_EVENT_AUDIO_VOLUME_INDICATION, uid, speaker.uid, uint32, speaker.volume, uint32, speakerNumber, int32, totalVolume);
         }
 
         void NodeEventHandler::onAudioVolumeIndication(const AudioVolumeInfo* speaker, unsigned int speakerNumber, int totalVolume)
         {
             FUNC_TRACE;
             if (speaker) {
-                AudioVolumeInfo localSpeaker = { 0 };
-                localSpeaker.uid = speaker->uid;
-                localSpeaker.volume = speaker->volume;
-                node_async_call::async_call([this, localSpeaker, speakerNumber, totalVolume] {
-                    this->onAudioVolumeIndication_node(localSpeaker, speakerNumber, totalVolume);
+                AudioVolumeInfo* localSpeakers = new AudioVolumeInfo[speakerNumber];
+                for(int i = 0; i < speakerNumber; i++) {
+                    AudioVolumeInfo tmp = speaker[i];
+                    localSpeakers[i].uid = tmp.uid;
+                    localSpeakers[i].volume = tmp.volume;
+                }
+                node_async_call::async_call([this, localSpeakers, speakerNumber, totalVolume] {
+                    this->onAudioVolumeIndication_node(localSpeakers, speakerNumber, totalVolume);
+                    delete []localSpeakers;
                 });
             }
         }
@@ -957,19 +989,36 @@ namespace agora {
         void NodeEventHandler::onRemoteAudioTransportStats_node(agora::rtc::uid_t uid, unsigned short delay, unsigned short lost, unsigned short rxKBitRate)
         {
 			FUNC_TRACE;
-#if 0
             MAKE_JS_CALL_4(RTC_EVENT_REMOTE_AUDIO_TRANSPORT_STATS, uid, uid, uint16, delay, uint16, lost, uint16, rxKBitRate);
-#endif
         }
 
         void NodeEventHandler::onRemoteVideoTransportStats_node(agora::rtc::uid_t uid, unsigned short delay, unsigned short lost, unsigned short rxKBitRate)
         {
 			FUNC_TRACE;
-#if 0
             MAKE_JS_CALL_4(RTC_EVENT_REMOTE_VIDEO_STATS, uid, uid, uint16, delay, uint16, lost, uint16, rxKBitRate);
-#endif
         }
-#if defined(_WIN32)
+
+        void NodeEventHandler::onRemoteAudioStats_node(const RemoteAudioStats & stats)
+        {
+            FUNC_TRACE;
+            do {
+                Isolate *isolate = Isolate::GetCurrent();
+                HandleScope scope(isolate);
+                Local<Object> obj = Object::New(isolate);
+                CHECK_NAPI_OBJ(obj);
+                NODE_SET_OBJ_PROP_UID(obj, "uid", stats.uid);
+                NODE_SET_OBJ_PROP_UINT32(obj, "quality", stats.quality);
+                NODE_SET_OBJ_PROP_UINT32(obj, "networkTransportDelay", stats.networkTransportDelay);
+                NODE_SET_OBJ_PROP_UINT32(obj, "jitterBufferDelay", stats.jitterBufferDelay);
+                NODE_SET_OBJ_PROP_UINT32(obj, "audioLossRate", stats.audioLossRate);
+                Local<Value> arg[1] = { obj };
+                auto it = m_callbacks.find(RTC_EVENT_REMOTE_AUDIO_STATS);
+                if (it != m_callbacks.end()) {
+                    it->second->callback.Get(isolate)->Call(it->second->js_this.Get(isolate), 1, arg); \
+                }
+            } while (false);
+        }
+
         void NodeEventHandler::onRemoteAudioTransportStats(agora::rtc::uid_t uid, unsigned short delay, unsigned short lost, unsigned short rxKBitRate)
         {
             FUNC_TRACE;
@@ -985,7 +1034,15 @@ namespace agora {
                 this->onRemoteVideoTransportStats_node(uid, delay, lost, rxKBitRate);
             });
         }
-#endif
+
+        void NodeEventHandler::onRemoteAudioStats(const RemoteAudioStats & stats)
+        {
+            FUNC_TRACE;
+            node_async_call::async_call([this, stats] {
+                this->onRemoteAudioStats_node(stats);
+            });
+        }
+
         void NodeEventHandler::onMicrophoneEnabled_node(bool enabled)
         {
             FUNC_TRACE;

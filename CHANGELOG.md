@@ -1,6 +1,39 @@
 ## Latest
+#### :house: internal
+* Add codes to prevent videosource from getting camera causing problems in windows
+* Add api `refreshRender`. Support instantly refreshing view when view size is changed. Useful for low frame rates
+
+#### :bug: Bug Fix
+* Use type `Element` instead of `HTMLElement`
+* Fixed param for api `setClientRole`
+* Add missing events.
+
+## 2.4.0-alpha (Apr 11st, 2019)
 #### :house: Internal
+* Add codes to prevent videosource from getting camera causing problems in windows
+* Add api `refreshRender`. Support instantly refreshing view when view size is changed. Useful for low frame rates
+
+## 2.3.3
+#### :house: Internal
+* Add Missing Api
+  * Add `getConnectionState` api
+  * Add Event `remoteAudioStats`
+* Add `release` Api
+
+#### :bug: Bug Fix
+* fixed the problem that `setHighFps` not work
+* fixed the problem which will prevent videosource from releasing
+
+#### :memo: Documentation
+* Add doc and type for the missing api above.
+
+## 2.3.3-alpha.12 (March 19th, 2019)
+#### :house: Internal
+* Add Api
+  * Add Event `groupAudioVolumeIndication` to provide all the speakers' volume as an array periodically
+
 * Optimize type declaration in ts file.
+* Revert frame handler for internal problem.
 
 ## 2.3.3-alpha.10 (Feb 13th, 2019)
 #### :house: Internal

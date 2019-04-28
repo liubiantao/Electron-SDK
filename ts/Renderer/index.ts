@@ -1,8 +1,10 @@
 import SoftwareRenderer from './SoftwareRenderer';
 import createGlRenderer from './GlRenderer';
+import { EventEmitter } from 'events';
 
 interface IRenderer {
-  bind(element: HTMLElement): void;
+  event: EventEmitter;
+  bind(element: Element): void;
   unbind(): void;
   drawFrame(imageData: {
     header: any,
@@ -11,14 +13,17 @@ interface IRenderer {
     vUint8Array: any
   }): void;
   setContentMode(mode: number): void;
+  refreshCanvas(): void;
 }
 
 class GlRenderer implements IRenderer {
   self: any;
+  event: EventEmitter;
   constructor() {
     this.self = createGlRenderer.apply(this);
+    this.event = this.self.event;
   }
-  bind(element: HTMLElement): void {
+  bind(element: Element): void {
     return this.self.bind(element);
   }
   unbind(): void {
@@ -34,6 +39,9 @@ class GlRenderer implements IRenderer {
   }
   setContentMode(mode: number): void {
     return this.self.setContentMode(mode);
+  }
+  refreshCanvas() {
+      return this.self.refreshCanvas();
   }
 }
 
