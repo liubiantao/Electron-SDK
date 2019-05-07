@@ -867,8 +867,9 @@ namespace agora {
         void NodeEventHandler::onStreamPublished(const char *url, int error)
         {
             FUNC_TRACE;
-            node_async_call::async_call([this, url, error] {
-                this->onStreamPublished_node(url, error);
+            std::string mUrl = std::string(url);
+            node_async_call::async_call([this, mUrl, error] {
+                this->onStreamPublished_node(mUrl.c_str(), error);
             });
         }
 
@@ -881,8 +882,9 @@ namespace agora {
         void NodeEventHandler::onStreamUnpublished(const char *url)
         {
             FUNC_TRACE;
-            node_async_call::async_call([this, url] {
-                this->onStreamUnpublished_node(url);
+            std::string mUrl = std::string(url);
+            node_async_call::async_call([this, mUrl] {
+                this->onStreamUnpublished_node(mUrl.c_str());
             });
         }
 
@@ -995,7 +997,7 @@ namespace agora {
         void NodeEventHandler::onRemoteVideoTransportStats_node(agora::rtc::uid_t uid, unsigned short delay, unsigned short lost, unsigned short rxKBitRate)
         {
 			FUNC_TRACE;
-            MAKE_JS_CALL_4(RTC_EVENT_REMOTE_VIDEO_STATS, uid, uid, uint16, delay, uint16, lost, uint16, rxKBitRate);
+            MAKE_JS_CALL_4(RTC_EVENT_REMOTE_VIDEO_TRANSPORT_STATS, uid, uid, uint16, delay, uint16, lost, uint16, rxKBitRate);
         }
 
         void NodeEventHandler::onRemoteAudioStats_node(const RemoteAudioStats & stats)
