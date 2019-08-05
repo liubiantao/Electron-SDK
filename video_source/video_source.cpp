@@ -109,7 +109,7 @@ bool AgoraVideoSource::initialize()
         LOG_LEAVE;
         return false;
     }
-    
+
     m_rtcEngine->disableAudio();
     m_rtcEngine->enableVideo();
 
@@ -117,10 +117,6 @@ bool AgoraVideoSource::initialize()
     rep.enableLocalVideo(false);
     rep.muteAllRemoteVideoStreams(true);
     rep.muteAllRemoteAudioStreams(true);
-
-    //prevent videosource from getting camera causing problems in windows
-    // agora::rtc::AParameter ap(m_rtcEngine.get());
-    // ap->setParameters("{\"che.video.local.camera_index\":1024}");
 
     m_ipc->sendMessage(AGORA_IPC_SOURCE_READY, nullptr, 0);
     m_initialized = true;

@@ -1,6 +1,6 @@
 {
   "name": "agora-electron-sdk",
-  "version": "2.3.3",
+  "version": "2.3.3-hotfix.2",
   "description": "agora-electron-sdk",
   "main": "js/AgoraSdk.js",
   "types": "types/AgoraSdk.d.ts",
@@ -15,6 +15,7 @@
     "build:electron2": "node ./scripts/build.js --runtime=electron --electron_version=1.8.3",
     "build:electron3": "node ./scripts/build.js --runtime=electron --electron_version=3.0.6",
     "build:electron4": "node ./scripts/build.js --runtime=electron --electron_version=4.0.0",
+    "build:electron": "node ./scripts/build.js --runtime=electron",
     "debug": "node ./scripts/build.js --runtime=electron --electron_version=3.0.6 --debug=true",
     "doc": "typedoc --out ./docs ./ts --hideGenerator --mode file --target es6 --name Agora-Electron-SDK --readme none",
     "download": "node ./scripts/download.js",
@@ -27,6 +28,12 @@
     "prepublishOnly:": "npm run build:ts"
   },
   "gypfile": false,
+  "files": [
+    "js/",
+    "types/",
+    "ts/",
+    "scripts/"
+  ],
   "dependencies": {
     "download": "^7.1.0",
     "lodash.isequal": "^4.5.0",
