@@ -5,7 +5,7 @@ module.exports.Platform = {
 }
 
 module.exports.DependentElectronVersion = {
-  ORIGIN: '1.8.3',
+  ORIGIN: '5.0.8',
   STABLE: '3.0.6',
   LATEST: '4.0.0'
 }
