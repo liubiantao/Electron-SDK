@@ -95,7 +95,6 @@ const AgoraRender = function() {
   that.renderImage = function(image) {
     // Rotation, width, height, left, top, right, bottom, yplane, uplane, vplane
     if (!gl) {
-      console.log('!gl');
       return;
     }
 
